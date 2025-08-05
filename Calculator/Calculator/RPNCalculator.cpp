@@ -14,8 +14,9 @@ inline bool RPNCalculator::IsOperatorRightAssociative(const string& powOperation
 	return powOperation == "^";
 }
 
-void RPNCalculator::TokenizeInput(const string& arrayOfStrings, vector<string> outParam)
+void RPNCalculator::TokenizeInput(const string& arrayOfStrings, vector<string>& outParam)
 {
+
 
 
 	for (size_t i = 0; i < arrayOfStrings.size();)
@@ -71,7 +72,7 @@ void RPNCalculator::TokenizeInput(const string& arrayOfStrings, vector<string> o
 
 }
 
-void RPNCalculator::ConvertToRPN(const vector<string>& tokens, vector<string> rpnOutParam)
+void RPNCalculator::ConvertToRPN(const vector<string>& tokens, vector<string>& rpnOutParam)
 {
 	stack<string> stack;	// stack to hold operators and parentheses
 
@@ -131,7 +132,7 @@ void RPNCalculator::ConvertToRPN(const vector<string>& tokens, vector<string> rp
 
 }
 
-inline void RPNCalculator::EvaluateOperation(stack<double>& evalStack, const string& arrayStringOfTokens)
+void RPNCalculator::EvaluateOperation(stack<double>& evalStack, const string& arrayStringOfTokens)
 {
 	double numberA, numberB;
 
@@ -173,7 +174,7 @@ double RPNCalculator::EvaluateRPN(const vector<string>& rpn)
 	return(evalStack.empty() ? NULL : evalStack.top()); // Return the result or NULL if the stack is empty
 }
 
-inline bool RPNCalculator::IsNumber(const string& token)
+bool RPNCalculator::IsNumber(const string& token)
 {
 	if (token.empty()) return false;
 
@@ -245,24 +246,6 @@ inline bool RPNCalculator::IsValidExpression(const vector<string>& tokens)
 	return parentheses == 0 && !lastWasOperator;
 }
 
-/**
- * @brief Processes a mathematical expression and calculates the result.
- *
- * This function takes a line of input representing a mathematical expression,
- * tokenizes it, validates its syntax, converts it to Reverse Polish Notation (RPN),
- * evaluates the RPN expression, and outputs the result.
- *
- * @param line A string representing the mathematical expression to evaluate.
- * @param resultOutParam A reference to a double where the result will be stored
- *        if the expression is valid and evaluation succeeds.
- *
- * @return true if the expression was valid and the result is a finite number,
- *         false otherwise.
- *
- * The function handles the special case of negative zero (-0) and converts it to 0.
- * It does not throw exceptions and assumes internal helper functions handle all
- * parsing and evaluation logic.
- */
 
 bool RPNCalculator::ProcessingResult(string line, double& resultOutParam)
 {
