@@ -1,5 +1,34 @@
 #include "RPNCalculator.h"
 
+//---------------Public Methods----------------
+bool RPNCalculator::ProcessingResult(string line, double& resultOutParam)
+{
+	vector<string> tokens;
+
+	TokenizeInput(line, tokens);
+
+	if (!IsValidExpression(tokens))
+	{
+
+		return 0;
+	}
+
+	vector<string> rpn;
+
+	ConvertToRPN(tokens, rpn);
+
+	resultOutParam = EvaluateRPN(rpn);
+
+	if (resultOutParam == -0)
+	{
+		resultOutParam = 0; // Handle -0 case
+	}
+
+	return isfinite(resultOutParam);
+}
+
+
+//---------------Private Methods---------------
 inline int RPNCalculator::OperatorPrecedence(const string& operation)
 {
 	if (operation == "^")					  return 3;
@@ -16,9 +45,6 @@ inline bool RPNCalculator::IsOperatorRightAssociative(const string& powOperation
 
 void RPNCalculator::TokenizeInput(const string& arrayOfStrings, vector<string>& outParam)
 {
-
-
-
 	for (size_t i = 0; i < arrayOfStrings.size();)
 	{
 		if (isspace(arrayOfStrings[i]))
@@ -247,28 +273,4 @@ inline bool RPNCalculator::IsValidExpression(const vector<string>& tokens)
 }
 
 
-bool RPNCalculator::ProcessingResult(string line, double& resultOutParam)
-{
-	vector<string> tokens;
 
-	TokenizeInput(line, tokens);
-
-	if (!IsValidExpression(tokens))
-	{
-
-		return 0;
-	}
-
-	vector<string> rpn;
-
-	ConvertToRPN(tokens, rpn);
-
-	resultOutParam = EvaluateRPN(rpn);
-
-	if (resultOutParam == -0)
-	{
-		resultOutParam = 0; // Handle -0 case
-	}
-
-	return isfinite(resultOutParam);
-}
