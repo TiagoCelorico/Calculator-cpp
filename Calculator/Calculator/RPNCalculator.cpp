@@ -53,25 +53,7 @@ void RPNCalculator::TokenizeInput(const string& arrayOfStrings, vector<string>& 
 		}
 		if ((arrayOfStrings[i] == '-' && i + 1 < arrayOfStrings.size() && isdigit(arrayOfStrings[i + 1])) || isdigit(arrayOfStrings[i]) || arrayOfStrings[i] == '.')
 		{
-			bool negative = (arrayOfStrings[i] == '-');
-
-			if (negative)
-			{
-				++i;
-			}
-
-			size_t j = i;
-
-			while (j < arrayOfStrings.size() && (isdigit(arrayOfStrings[j]) || arrayOfStrings[j] == '.'))
-			{
-				++j;
-			}
-
-			string number = (negative ? "-" : "") + arrayOfStrings.substr(i, j - i);
-
-			outParam.push_back(number);
-
-			i = j;
+			IsNegativeOrDecimal(arrayOfStrings, i, outParam);
 			continue;
 		}
 		else
@@ -96,6 +78,29 @@ void RPNCalculator::TokenizeInput(const string& arrayOfStrings, vector<string>& 
 		}
 	}
 
+}
+
+void RPNCalculator::IsNegativeOrDecimal(const string& arrayOfStrings, size_t& i, vector<string>& outParam)
+{
+	bool negative = (arrayOfStrings[i] == '-');
+
+	if (negative)
+	{
+		++i;
+	}
+
+	size_t j = i;
+
+	while (j < arrayOfStrings.size() && (isdigit(arrayOfStrings[j]) || arrayOfStrings[j] == '.'))
+	{
+		++j;
+	}
+
+	string number = (negative ? "-" : "") + arrayOfStrings.substr(i, j - i);
+
+	outParam.push_back(number);
+
+	i = j;
 }
 
 void RPNCalculator::ConvertToRPN(const vector<string>& tokens, vector<string>& rpnOutParam)
@@ -123,31 +128,15 @@ void RPNCalculator::ConvertToRPN(const vector<string>& tokens, vector<string>& r
 		}
 		if (arrayStringOfTokens == ")")
 		{
-			while (!stack.empty() && stack.top() != "(")
-			{
-				rpnOutParam.push_back(stack.top());
-				stack.pop();
-			}
-			if (!stack.empty())
-			{
-				stack.pop();
-			}
-			// Check for implicit multiplication after closing paren
-			if (i + 1 < tokens.size() && (tokens[i + 1] == "(" || isdigit(tokens[i + 1][0]) || (tokens[i + 1].size() > 1 && tokens[i + 1][0] == '-')))
-			{
-				stack.push("*");
-			}
+			CheckParenthesesUsage(stack, rpnOutParam);
+			
+			IsImplicitMultiplication(i, tokens, stack);
 			
 			continue;
 		}
 		else
 		{
-			while (!stack.empty() && stack.top() != "(" && (OperatorPrecedence(stack.top()) > OperatorPrecedence(arrayStringOfTokens) || (OperatorPrecedence(stack.top()) == OperatorPrecedence(arrayStringOfTokens) && !IsOperatorRightAssociative(arrayStringOfTokens))))
-			{
-				rpnOutParam.push_back(stack.top());
-				stack.pop();
-			}
-			stack.push(arrayStringOfTokens);
+			OrderingPEMDAS(stack, arrayStringOfTokens, rpnOutParam);
 		}
 	}
 	while (!stack.empty())
@@ -156,6 +145,37 @@ void RPNCalculator::ConvertToRPN(const vector<string>& tokens, vector<string>& r
 		stack.pop();
 	}
 
+}
+
+void RPNCalculator::OrderingPEMDAS(stack<string>& stack, const string& arrayStringOfTokens, vector<string>& rpnOutParam)
+{
+	while (!stack.empty() && stack.top() != "(" && (OperatorPrecedence(stack.top()) > OperatorPrecedence(arrayStringOfTokens) || (OperatorPrecedence(stack.top()) == OperatorPrecedence(arrayStringOfTokens) && !IsOperatorRightAssociative(arrayStringOfTokens))))
+	{
+		rpnOutParam.push_back(stack.top());
+		stack.pop();
+	}
+	stack.push(arrayStringOfTokens);
+}
+
+void RPNCalculator::CheckParenthesesUsage(stack<string>& stack, vector<string>& rpnOutParam)
+{
+	while (!stack.empty() && stack.top() != "(")
+	{
+		rpnOutParam.push_back(stack.top());
+		stack.pop();
+	}
+	if (!stack.empty())
+	{
+		stack.pop();
+	}
+}
+
+void RPNCalculator::IsImplicitMultiplication(size_t i, const vector<string>& tokens, stack<string>& stack)
+{
+	if (i + 1 < tokens.size() && (tokens[i + 1] == "(" || isdigit(tokens[i + 1][0]) || (tokens[i + 1].size() > 1 && tokens[i + 1][0] == '-')))
+	{
+		stack.push("*");
+	}
 }
 
 void RPNCalculator::EvaluateOperation(stack<double>& evalStack, const string& arrayStringOfTokens)

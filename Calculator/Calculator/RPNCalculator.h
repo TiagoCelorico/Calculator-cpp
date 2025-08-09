@@ -42,7 +42,15 @@ private:
 
 	void TokenizeInput(const string& arrayOfStrings, vector<string>& outParam);
 
+	void IsNegativeOrDecimal(const string& arrayOfStrings, size_t& i, vector<string>& outParam);
+
 	void ConvertToRPN(const vector<string>& tokens, vector<string>& rpnOutParam);
+
+	void OrderingPEMDAS(stack<string>& stack, const string& arrayStringOfTokens, vector<string>& rpnOutParam);
+
+	void CheckParenthesesUsage(stack<string>& stack, vector<string>& rpnOutParam);
+
+	void IsImplicitMultiplication(size_t i, const vector<string>& tokens, stack<string>& stack);
 
 	void EvaluateOperation(stack<double>& evalStack, const string& arrayStringOfTokens);
 
